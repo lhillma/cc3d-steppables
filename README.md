@@ -10,7 +10,12 @@ TBA
 
 ## Installation
 
-TBA
+Clone the repository and install the package using pip:
+
+```bash
+git clone https://gitlab.tue.nl/20235660/cc3d-steppables.git
+pip install cc3d-steppables
+```
 
 ## Usage
 
