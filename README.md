@@ -87,12 +87,26 @@ Contributions via merge requests are always welcome. If you encounter an issue
 and don't have the time to fix it, please open an issue and describe the
 problem. If you have a question, please open an issue and describe the problem.
 
+### Pre-commit
+The project uses [pre-commit](https://pre-commit.com/) to run some checks on any
+changes prior to committing them. Please install pre-commit in your virtual
+Python environment in order to automatically adhere to the coding style required
+for this project. To do so, it should suffice to run the following two commands
+from the root of the repository:
+
+```bash
+pip install --upgrade pre-commit
+pre-commit install
+```
+
 ## Authors and acknowledgment
-Many of the steppables in this repository are based on the work of Quirine Braat and P. M. C. Wielstra.
+Many of the steppables in this repository are based on the work of Quirine
+Braat and P. M. C. Wielstra.
 
 ## License
 
 TBA
 
 ## Project status
-This project is in active development, so expect changes to the API and the feature set.
+This project is in active development, so expect changes to the API and the
+feature set.
