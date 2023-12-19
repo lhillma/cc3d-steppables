@@ -8,3 +8,7 @@ version = "0.0.1"
 description = "A library for CC3D steppables"
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "h5py",
+]
