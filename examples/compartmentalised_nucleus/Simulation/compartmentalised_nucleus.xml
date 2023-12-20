@@ -1,0 +1,63 @@
+<CompuCell3D Revision="0" Version="4.3.1">
+
+   <Metadata>
+      <!-- Basic properties simulation -->
+      <NumberOfProcessors>1</NumberOfProcessors>
+      <DebugOutputFrequency>4000</DebugOutputFrequency>
+   </Metadata>
+
+   <Potts>
+      <!-- Basic properties of CPM (GGH) algorithm -->
+      <Dimensions x="400" y="400" z="1"/>
+      <Steps>1000001</Steps>
+      <Temperature>1.0</Temperature>
+      <NeighborOrder>1</NeighborOrder>
+      <Boundary_x>Periodic</Boundary_x>
+      <Boundary_y>Periodic</Boundary_y>
+   </Potts>
+
+   <Plugin Name="CellType">
+      <CellType TypeId="0" TypeName="Medium"/>
+      <CellType TypeId="1" TypeName="cytoplasm"/>
+      <CellType TypeId="2" TypeName="nucleus"/>
+   </Plugin>
+
+   <Plugin Name="Volume">
+   </Plugin>
+
+   <Plugin Name="ExternalPotential">
+      <Algorithm>PixelBased</Algorithm>
+   </Plugin>
+
+   <Plugin Name="CenterOfMass">
+      <!-- Module tracking center of mass of each cell -->
+   </Plugin>
+
+   <Plugin Name="NeighborTracker">
+      <!-- Module tracking neighboring cells of each cell -->
+   </Plugin>
+
+   <Plugin Name="Contact">
+      <!-- Specification of adhesion energies -->
+      <Energy Type1="Medium" Type2="Medium">0.0</Energy>
+      <Energy Type1="Medium" Type2="cytoplasm">40.0</Energy>
+      <Energy Type1="Medium" Type2="nucleus">0.0</Energy>
+      <Energy Type1="cytoplasm" Type2="cytoplasm">3.0</Energy>
+      <Energy Type1="cytoplasm" Type2="nucleus">250.0</Energy>
+      <Energy Type1="nucleus" Type2="nucleus">480.0</Energy>
+      <NeighborOrder>4</NeighborOrder>
+   </Plugin>
+
+   <Plugin Name="ContactInternal">
+      <!-- Specification of internal adhesion energies -->
+      <Energy Type1="cytoplasm" Type2="cytoplasm">0.0</Energy>
+      <Energy Type1="cytoplasm" Type2="nucleus">2.0</Energy>
+      <Energy Type1="nucleus" Type2="nucleus">0.0</Energy>
+      <NeighborOrder>4</NeighborOrder>
+   </Plugin>
+
+   <Plugin Name="Connectivity">
+       <Penalty>100000</Penalty>
+   </Plugin>
+
+</CompuCell3D>
