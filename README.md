@@ -14,9 +14,20 @@ accordingly, if this is not the case for you).
 ## Getting started
 
 Follow the [Installation](#installation) instructions to install the package in
-your Compucell3D Python virtual environment.
-Then, follow the [Usage](#usage) instructions to use the package in your own
-CC3D simulation.
+your CompuCell3D Python virtual environment.
+
+This repository contains an example CC3D simulation that uses the steppables
+from the library. You can find the example in the `examples` directory. To run
+the provided simulation with a cell containing a (stiff) nucleus suspect to a
+random force, run the following commands from the root of the repository:
+
+```bash
+conda activate cc3d  # change the name to match your virtual Python environment
+python -m cc3d.player5 -i examples/compartmentalised_nucelus/simulation.cc3d
+```
+
+For a more in-depth explanation of the example simulation, see the
+[Usage](#usage) section down below.
 
 ## Installation
 
