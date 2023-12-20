@@ -4,6 +4,13 @@ This project aims to be a repository of steppables to use for CompuCell3D
 simulations. The steppables are written in Python and can be used in and
 combined with any CC3D simulation.
 
+## Pre-requisites
+
+A working installation of CompuCell3D in a virtual Python environment is
+required to use the steppables in this repository. The following assumes that
+your virtual Python environment is named `cc3d` (change the commands
+accordingly, if this is not the case for you).
+
 ## Getting started
 
 Follow the [Installation](#installation) instructions to install the package in
@@ -17,6 +24,7 @@ Clone the repository and install the package using pip:
 
 ```bash
 git clone https://gitlab.tue.nl/20235660/cc3d-steppables.git
+conda activate cc3d  # change the name to match your virtual Python environment
 pip install cc3d-steppables
 ```
 
