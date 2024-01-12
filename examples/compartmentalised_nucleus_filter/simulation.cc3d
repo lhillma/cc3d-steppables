@@ -1,0 +1,4 @@
+<Simulation version="3.5.1">
+    <XMLScript>Simulation/compartmentalised_nucleus.xml</XMLScript>
+    <PythonScript>Simulation/compartmentalised_nucleus.py</PythonScript>
+</Simulation>

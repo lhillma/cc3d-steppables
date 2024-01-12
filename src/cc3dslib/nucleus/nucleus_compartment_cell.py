@@ -45,6 +45,7 @@ class NucleusCompartmentCell(SteppableBasePy):
         super().__init__(frequency=float("inf"))
 
         self.params = params
+        self._cluster_ids: np.ndarray = np.array([])
 
     def start(self):
         """Create a cell with a nucleus and cytoplasm."""
@@ -73,11 +74,15 @@ class NucleusCompartmentCell(SteppableBasePy):
 
     def _assign_cell_custer_ids(self):
         """Assign the same cluster ID to the nucleus and cytoplasm of each cell."""
+        cluster_ids: list[int] = []
         for cyto_cell, nuc_cell in zip(
             self.cell_list_by_type(self.CYTOPLASM), self.cell_list_by_type(self.NUCLEUS)
         ):
             cluster_id = cyto_cell.clusterId
             self.reassign_cluster_id(nuc_cell, cluster_id)
+            cluster_ids.append(cluster_id)
+
+        self._cluster_ids = np.array(cluster_ids)
 
     def _assign_volume_terms(self):
         """Assign the volume terms for each cell according to the cell size."""
@@ -98,3 +103,16 @@ class NucleusCompartmentCell(SteppableBasePy):
 
     def finish(self):
         pass
+
+    @property
+    def cluster_ids(self) -> np.ndarray:
+        """Return the cluster IDs of the cells created by this steppable."""
+        return self._cluster_ids
+
+    @property
+    def n_clusters(self) -> int:
+        """Return the number of clusters created by this steppable."""
+        start_x, start_y, end_x, end_y = self.params.box
+        cell_size = self.params.cell_size
+
+        return int((end_x - start_x) / cell_size) * int((end_y - start_y) / cell_size)

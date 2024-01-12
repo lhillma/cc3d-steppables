@@ -59,7 +59,10 @@ CompuCellSetup.run()
 ```
 
 You can use several steppables in a single simulation. For example, you can
-modify the above simulation to add an active force to each compartment cell:
+modify the above simulation to add an active force to each compartment cell. In order
+to to so, you need to use a filter in order to select the cells that should be
+subject to the active force. In this case, we want to apply the active force to
+all cells.
 
 ```python
 from cc3d import CompuCellSetup
@@ -73,8 +76,10 @@ nuc_params = NucleusCompartmentCellParams(
 CompuCellSetup.register_steppable(NucleusCompartmentCell(params=nuc_params))
 
 # active force
+cell_filter = CompartmentFilter()
+CompuCellSetup.register_steppable(cell_filter)
 active_params = ActiveSwimmerParams(
-    cell_size=nuc_params.cell_size, d_theta=0.1, force_magnitude=1.0
+    filter=cell_filter, cell_size=nuc_params.cell_size, d_theta=0.1, force_magnitude=1.0
 )
 CompuCellSetup.register_steppable(ActiveSwimmer(params=active_params))
 
