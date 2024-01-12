@@ -5,6 +5,8 @@ from pathlib import Path
 import numpy as np
 import h5py
 from cc3d.core.PySteppables import SteppableBasePy
+from cc3d.cpp.CompuCell import CellG
+from cc3dslib.filter import Filter
 
 
 class COMTracker(SteppableBasePy):
@@ -20,6 +22,7 @@ class COMTracker(SteppableBasePy):
     def __init__(
         self,
         filename: Path | str,
+        filter: Filter[list[CellG]],
         dims: int = 2,
         chunk_size=1000,
         frequency=1,
@@ -29,16 +32,13 @@ class COMTracker(SteppableBasePy):
         self.filename = filename
         self.dims = dims
         self.chunk_size = chunk_size
+        self.filter = filter
 
     def start(self):
         self.steps = 0
         self.file = h5py.File(self.filename, "w")
 
-        assert (
-            self.cell_list is not None
-        ), "No cells in simulation. Please add COMTracker after cell creation steppables."
-
-        n_particles = len(self.cell_list)
+        n_particles = len(list(self.filter()))
         self.com_dset = self.file.create_dataset(
             "com",
             (0, n_particles, self.dims),
@@ -48,14 +48,16 @@ class COMTracker(SteppableBasePy):
         self.coms = np.empty((self.chunk_size, n_particles, self.dims))
 
     def step(self, _):
-        assert self.cell_list, "No cells in simulation."
-
         if self.steps % self.chunk_size == 0:
             self.com_dset.resize(self.com_dset.shape[0] + self.chunk_size, axis=0)
             self.com_dset[-self.chunk_size :, :, :] = self.coms
 
-        for i, cell in enumerate(self.cell_list):
-            self.coms[self.steps % self.chunk_size, i, :] = cell.xCOM, cell.yCOM
+        for i, cells in enumerate(self.filter()):
+            self.coms[self.steps % self.chunk_size, i, :] = 0, 0
+            for cell in cells:
+                self.coms[self.steps % self.chunk_size, i, :] += cell.xCOM, cell.yCOM
+
+            self.coms[self.steps % self.chunk_size, i, :] /= len(cells)
 
         self.steps += 1
 
