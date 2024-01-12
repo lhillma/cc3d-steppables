@@ -1,0 +1,4 @@
+<Simulation version="3.5.1">
+    <XMLScript>Simulation/com_tracking.xml</XMLScript>
+    <PythonScript>Simulation/com_tracking.py</PythonScript>
+</Simulation>
