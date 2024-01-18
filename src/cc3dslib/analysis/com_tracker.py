@@ -6,17 +6,15 @@ import numpy as np
 import h5py
 from cc3d.core.PySteppables import SteppableBasePy
 from cc3d.cpp.CompuCell import CellG
+from cc3d.core.XMLUtils import ElementCC3D
 from cc3dslib.filter import Filter
 
+from cc3dslib.simulation import Element
 
-class COMTracker(SteppableBasePy):
+
+class COMTracker(SteppableBasePy, Element):
     """
     Steppable to track the center of mass of cells between simulation steps.
-
-    This steppable requires the COM plugin to be enabled in the simulation xml file as
-    follows:
-
-    <Plugin Name="CenterOfMass" />
     """
 
     def __init__(
@@ -68,3 +66,7 @@ class COMTracker(SteppableBasePy):
 
     def on_stop(self):
         self.finish()
+
+    def build(self) -> list[ElementCC3D]:
+        com_plugin = ElementCC3D("Plugin", {"Name": "CenterOfMass"})
+        return [com_plugin]

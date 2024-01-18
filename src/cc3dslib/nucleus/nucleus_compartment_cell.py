@@ -1,33 +1,20 @@
-from dataclasses import dataclass
+from typing import Literal
+from dataclasses import dataclass, field
 
 import numpy as np
 
 from cc3d.core.PySteppables import SteppableBasePy
+from cc3d.core.XMLUtils import ElementCC3D
 from cc3d.cpp import CompuCell
 
-
-@dataclass
-class NucleusCompartmentCellParams:
-    """Parameters for NucleusCompartmentCell."""
-
-    box: tuple[int, int, int, int]
-    cell_size: int = 20
-    nucleus_size_ratio: float = 0.2
-    lambda_cell: float = 0.1
-    lambda_nuc: float = 1.0
+from cc3dslib.simulation import Element
 
 
-class NucleusCompartmentCell(SteppableBasePy):
+class NucleusCompartmentCell(SteppableBasePy, Element):
     """Steppable to set up compartmentalized cells with a nucleus and cytoplasm.
 
     Usage of this steppable requires the simulation to have two cell types
-    defined, one for the nucleus and one for the cytoplasm. The cell types
-    should be defined in the simulation's .xml file as follows:
-
-    <Plugin Name="CellType">
-        <CellType TypeId="0" TypeName="nucleus"/>
-        <CellType TypeId="1" TypeName="cytoplasm"/>
-    </Plugin>
+    defined, one for the nucleus and one for the cytoplasm.
     """
 
     # missing type hints
@@ -37,7 +24,7 @@ class NucleusCompartmentCell(SteppableBasePy):
 
     def __init__(
         self,
-        params: NucleusCompartmentCellParams,
+        params: "NucleusCompartmentCellParams",
     ):
         """Initialize steppable."""
         # Since this steppable is only an initializer, it should only run once, thus
@@ -116,3 +103,79 @@ class NucleusCompartmentCell(SteppableBasePy):
         cell_size = self.params.cell_size
 
         return int((end_x - start_x) / cell_size) * int((end_y - start_y) / cell_size)
+
+    def build(self) -> list[ElementCC3D]:
+        """Return the XML element for this steppable."""
+        cell_type = ElementCC3D("Plugin", {"Name": "CellType"})
+        cell_type.ElementCC3D("CellType", {"TypeId": "0", "TypeName": "Medium"})
+        cell_type.ElementCC3D("CellType", {"TypeId": "1", "TypeName": "Cytoplasm"})
+        cell_type.ElementCC3D("CellType", {"TypeId": "2", "TypeName": "Nucleus"})
+
+        contact_plugin = ElementCC3D("Plugin", {"Name": "Contact"})
+
+        for (type1, type2), j in self.params.J.items():
+            contact_plugin.ElementCC3D(
+                "Energy", {"Type1": type1, "Type2": type2}, str(j)
+            )
+
+        contact_internal_plugin = ElementCC3D("Plugin", {"Name": "ContactInternal"})
+
+        for (type1, type2), j in self.params.J_internal.items():
+            contact_internal_plugin.ElementCC3D(
+                "Energy", {"Type1": type1, "Type2": type2}, str(j)
+            )
+
+        neighbour_plugin = ElementCC3D("Plugin", {"Name": "NeighborTracker"})
+
+        volume_plugin = ElementCC3D("Plugin", {"Name": "Volume"})
+
+        connectivity_plugin = ElementCC3D("Plugin", {"Name": "Connectivity"})
+        connectivity_plugin.ElementCC3D("Penalty", {}, "100000")
+
+        return [
+            cell_type,
+            contact_plugin,
+            contact_internal_plugin,
+            neighbour_plugin,
+            volume_plugin,
+            connectivity_plugin,
+        ]
+
+
+CellType = Literal["Medium", "Cytoplasm", "Nucleus"]
+
+
+def _default_j() -> dict[tuple[CellType, CellType], float]:
+    return {
+        ("Medium", "Medium"): 0.0,
+        ("Medium", "Cytoplasm"): 40.0,
+        ("Medium", "Nucleus"): 3.0,
+        ("Cytoplasm", "Cytoplasm"): 3.0,
+        ("Cytoplasm", "Nucleus"): 250.0,
+        ("Nucleus", "Nucleus"): 480.0,
+    }
+
+
+def _default_j_internal() -> dict[tuple[CellType, CellType], float]:
+    return {
+        ("Cytoplasm", "Cytoplasm"): 0.0,
+        ("Cytoplasm", "Nucleus"): 2.0,
+        ("Nucleus", "Nucleus"): 0.0,
+    }
+
+
+@dataclass
+class NucleusCompartmentCellParams:
+    """Parameters for NucleusCompartmentCell."""
+
+    box: tuple[int, int, int, int]
+    cell_size: int = 20
+    nucleus_size_ratio: float = 0.2
+    lambda_cell: float = 0.1
+    lambda_nuc: float = 1.0
+    J: dict[tuple[CellType, CellType], float] = field(
+        default_factory=_default_j,
+    )
+    J_internal: dict[tuple[CellType, CellType], float] = field(
+        default_factory=_default_j_internal,
+    )

@@ -2,8 +2,10 @@
 from dataclasses import dataclass
 from cc3d.cpp.CompuCell import CellG
 from cc3dslib.filter import Filter
+from cc3dslib.simulation import Element
 
 from cc3d.core.PySteppables import SteppableBasePy
+from cc3d.core.XMLUtils import ElementCC3D
 
 import numpy as np
 
@@ -16,7 +18,7 @@ class ActiveSwimmerParams:
     cell_size: float = 1
 
 
-class ActiveSwimmer(SteppableBasePy):
+class ActiveSwimmer(SteppableBasePy, Element):
     def __init__(self, params: ActiveSwimmerParams, frequency=1):
         super().__init__(frequency)
 
@@ -56,3 +58,8 @@ class ActiveSwimmer(SteppableBasePy):
 
     def finish(self):
         pass
+
+    def build(self) -> list[ElementCC3D]:
+        root_node = ElementCC3D("Plugin", {"Name": "ExternalPotential"})
+        root_node.ElementCC3D("Algorithm", {}, "PixelBased")
+        return [root_node]

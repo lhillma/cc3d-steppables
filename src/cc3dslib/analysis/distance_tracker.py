@@ -1,20 +1,17 @@
 """Steppable to track the displacement vector of cells between simulation steps."""
 
 from pathlib import Path
+from cc3d.core.XMLUtils import ElementCC3D
 
 import numpy as np
 import h5py
 from cc3d.core.PySteppables import SteppableBasePy
 
+from cc3dslib.simulation.element import Element
 
-class DistanceTracker(SteppableBasePy):
-    """ "Steppable to track the displacement vector of cells between simulation steps.
 
-    This steppable requires the COM plugin to be enabled in the simulation xml file as
-    follows:
-
-    <Plugin Name="CenterOfMass" />
-    """
+class DistanceTracker(SteppableBasePy, Element):
+    """Steppable to track the displacement vector of cells between simulation steps."""
 
     def __init__(
         self,
@@ -78,3 +75,7 @@ class DistanceTracker(SteppableBasePy):
 
     def on_stop(self):
         self.finish()
+
+    def build(self) -> list[ElementCC3D]:
+        com_plugin = ElementCC3D("Plugin", {"Name": "CenterOfMass"})
+        return [com_plugin]
