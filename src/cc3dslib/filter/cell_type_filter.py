@@ -4,7 +4,7 @@ from cc3d.cpp.CompuCell import CellG
 from .filter import Filter
 
 
-class CellTypeFilter(SteppableBasePy, Filter):
+class CellTypeFilter(Filter):
     def __init__(self, *types):
         super().__init__(frequency=float("inf"))
         self.cell_types = types
@@ -14,4 +14,4 @@ class CellTypeFilter(SteppableBasePy, Filter):
 
         Wrapper around `cell_list_by_type`.
         """
-        return self.cell_list_by_type(self.cell_types)
+        return self.cell_list_by_type(*self.cell_types)
