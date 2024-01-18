@@ -1,4 +1,5 @@
 import cc3d
+from cc3d.core.PySteppables import SteppableBasePy
 from cc3d.core.XMLUtils import ElementCC3D
 
 from .element import Element
@@ -22,6 +23,7 @@ class ConfigBuilder:
         self.root_element = ElementCC3D(
             "CompuCell3D", {"Revision": "0", "Version": cc3d.__version__}
         )
+        self.elements: list[Element] = []
 
     def base(self, n_processors: int = 1, dbg_frequency: int = 4000) -> "ConfigBuilder":
         metadata = self.root_element.ElementCC3D("Metadata")
@@ -44,9 +46,18 @@ class ConfigBuilder:
         return self
 
     def add(self, element: Element) -> "ConfigBuilder":
+        self.elements.append(element)
         for e in element.build():
             self.root_element.add_child(e)
         return self
 
     def build(self) -> ElementCC3D:
         return self.root_element
+
+    def setup(self) -> None:
+        from cc3d import CompuCellSetup
+
+        CompuCellSetup.setSimulationXMLDescription(self.build())
+
+        for element in filter(lambda x: isinstance(x, SteppableBasePy), self.elements):
+            CompuCellSetup.register_steppable(element)
