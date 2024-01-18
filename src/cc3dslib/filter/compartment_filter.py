@@ -5,7 +5,7 @@ from cc3dslib.active_swimmer import CellG
 from .filter import Filter
 
 
-class CompartmentFilter(SteppableBasePy, Filter[list[CellG]]):
+class CompartmentFilter(Filter[list[CellG]]):
     """A filter iterating over the cells in a cluster/ compartment.
 
     This filter is used to select all cells in the simulation and group them by
