@@ -54,10 +54,23 @@ class ConfigBuilder:
     def build(self) -> ElementCC3D:
         return self.root_element
 
-    def setup(self) -> None:
+    def setup(self) -> "Simulation":
         from cc3d import CompuCellSetup
 
         CompuCellSetup.setSimulationXMLDescription(self.build())
 
         for element in filter(lambda x: isinstance(x, SteppableBasePy), self.elements):
             CompuCellSetup.register_steppable(element)
+
+        return Simulation()
+
+
+class Simulation:
+    def run(self) -> None:
+        """Wrapper to run the simulation by calling
+
+        `cc3d.core.CompuCellSetup.run`.
+        """
+        from cc3d import CompuCellSetup
+
+        CompuCellSetup.run()

@@ -1,4 +1,3 @@
-from cc3d import CompuCellSetup
 from cc3dslib.nucleus import NucleusCompartmentCell, NucleusCompartmentCellParams
 from cc3dslib.filter import CompartmentFilter
 from cc3dslib import ActiveSwimmer, ActiveSwimmerParams
@@ -29,6 +28,5 @@ active_steppable = ActiveSwimmer(params=active_params)
     .add(cell_filter)
     .add(active_steppable)
     .setup()
+    .run()
 )
-
-CompuCellSetup.run()
