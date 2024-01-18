@@ -5,7 +5,7 @@ from cc3dslib.analysis import COMTracker
 from cc3dslib.simulation import ConfigBuilder, PottsParams
 
 
-sim_params = PottsParams(dimensions=(400, 400, 1), steps=1_000_000)
+sim_params = PottsParams(dimensions=(100, 100, 1), steps=1_000_000)
 
 # nucleus
 nuc_params = NucleusCompartmentCellParams(

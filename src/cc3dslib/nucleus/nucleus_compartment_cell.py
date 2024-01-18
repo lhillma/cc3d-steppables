@@ -118,12 +118,16 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
                 "Energy", {"Type1": type1, "Type2": type2}, str(j)
             )
 
+        contact_plugin.ElementCC3D("NeighborOrder", {}, "2")
+
         contact_internal_plugin = ElementCC3D("Plugin", {"Name": "ContactInternal"})
 
         for (type1, type2), j in self.params.J_internal.items():
             contact_internal_plugin.ElementCC3D(
                 "Energy", {"Type1": type1, "Type2": type2}, str(j)
             )
+
+        contact_internal_plugin.ElementCC3D("NeighborOrder", {}, "2")
 
         neighbour_plugin = ElementCC3D("Plugin", {"Name": "NeighborTracker"})
 

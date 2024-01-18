@@ -38,19 +38,9 @@ class ActiveSwimmer(SteppableBasePy, Element):
         ):
             for cell in compartments:
                 # force component along X axis
-                cell.lambdaVecX = (
-                    self.params.force_magnitude
-                    * np.cos(angle)
-                    * cell.targetVolume
-                    / self.params.cell_size**2
-                )
+                cell.lambdaVecX = self.params.force_magnitude * np.cos(angle)
                 # force component along Y axis
-                cell.lambdaVecY = (
-                    self.params.force_magnitude
-                    * np.sin(angle)
-                    * cell.targetVolume
-                    / self.params.cell_size**2
-                )
+                cell.lambdaVecY = self.params.force_magnitude * np.sin(angle)
 
         self.angles += (
             np.random.random(size=self.angles.shape) - 0.5
@@ -61,5 +51,5 @@ class ActiveSwimmer(SteppableBasePy, Element):
 
     def build(self) -> list[ElementCC3D]:
         root_node = ElementCC3D("Plugin", {"Name": "ExternalPotential"})
-        root_node.ElementCC3D("Algorithm", {}, "PixelBased")
+        root_node.ElementCC3D("Algorithm", {}, "CenterOfMassBased")
         return [root_node]

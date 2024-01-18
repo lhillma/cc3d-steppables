@@ -12,7 +12,7 @@ class PottsParams:
     dimensions: tuple[int, int, int] = field(default=(100, 100, 1))
     steps: int = field(default=1000)
     temperature: float = field(default=1.0)
-    neighborOrder: int = field(default=2)
+    neighborOrder: int = field(default=1)
     boundary_x: str = field(default="Periodic")
     boundary_y: str = field(default="Periodic")
     boundary_z: str | None = field(default=None)
