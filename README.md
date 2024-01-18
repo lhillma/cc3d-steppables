@@ -48,14 +48,23 @@ Below you can see the Python part of a CC3D simulation that uses the
 suspended in cytoplasm:
 
 ```python
-from cc3d import CompuCellSetup
 from cc3dslib.nucleus import NucleusCompartmentCell, NucleusCompartmentCellParams
+from cc3dslib.simulation import ConfigBuilder, PottsParams
+
+sim_params = PottsParams(dimensions=(400, 400, 1), steps=1_000_000)
 
 nuc_params = NucleusCompartmentCellParams(
     box=(0, 0, 400, 400), nucleus_size_ratio=0.3, lambda_nuc=0.5
 )
-CompuCellSetup.register_steppable(NucleusCompartmentCell(params=nuc_params))
-CompuCellSetup.run()
+
+(
+    ConfigBuilder()
+    .base(n_processors=1, dbg_frequency=1000)
+    .potts(sim_params)
+    .add(NucleusCompartmentCell(params=nuc_params))
+    .setup()
+    .run()
+)
 ```
 
 You can use several steppables in a single simulation. For example, you can
@@ -65,7 +74,6 @@ subject to the active force. In this case, we want to apply the active force to
 all cells.
 
 ```python
-from cc3d import CompuCellSetup
 from cc3dslib.nucleus import NucleusCompartmentCell, NucleusCompartmentCellParams
 from cc3dslib import ActiveSwimmer, ActiveSwimmerParams
 
@@ -73,33 +81,26 @@ from cc3dslib import ActiveSwimmer, ActiveSwimmerParams
 nuc_params = NucleusCompartmentCellParams(
     box=(0, 0, 400, 400), nucleus_size_ratio=0.3, lambda_nuc=0.5
 )
-CompuCellSetup.register_steppable(NucleusCompartmentCell(params=nuc_params))
+nuc_plugin = NucleusCompartmentCell(params=nuc_params)
 
 # active force
 cell_filter = CompartmentFilter()
-CompuCellSetup.register_steppable(cell_filter)
 active_params = ActiveSwimmerParams(
     filter=cell_filter, cell_size=nuc_params.cell_size, d_theta=0.1, force_magnitude=1.0
 )
-CompuCellSetup.register_steppable(ActiveSwimmer(params=active_params))
+active_plugin = ActiveSwimmer(params=active_params)
 
-CompuCellSetup.run()
+(
+    ConfigBuilder()
+    .base(n_processors=1, dbg_frequency=1000)
+    .potts(sim_params)
+    .add(nuc_plugin)
+    .add(cell_filter)
+    .add(active_plugin)
+    .setup()
+    .run()
+)
 ```
-
-**Note:** Some of the steppables require specific plug-ins to be enabled in the
-XML definition files of the CC3D simulation. For example, the
-`NucleusCompartmentCell` steppable requires there to be two cell types
-("cytoplasm" and "nucleus"). This can be achieved by adding the following lines
-to the XML definition file:
-
-```xml
-<Plugin Name="CellType">
-    <CellType TypeId="0" TypeName="cytoplasm"/>
-    <CellType TypeId="1" TypeName="nucleus"/>
-</Plugin>
-```
-
-The required plug-ins are listed in the documentation of each steppable.
 
 Below you can see a screenshot of the simulation resulting from the snippet
 above:
