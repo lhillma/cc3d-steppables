@@ -9,14 +9,18 @@ sim_params = PottsParams(dimensions=(100, 100, 1), steps=1_000_000)
 
 # nucleus
 nuc_params = NucleusCompartmentCellParams(
-    box=(0, 0, *sim_params.dimensions[:2]), nucleus_size_ratio=0.3, lambda_nuc=0.5
+    box=(0, 0, *sim_params.dimensions[:2]),
+    nucleus_size_ratio=0.3,
+    nuc_lambda_volume=0.5,
 )
 nuc_plugin = NucleusCompartmentCell(params=nuc_params)
 
 # active force
 cell_filter = CompartmentFilter()
 active_params = ActiveSwimmerParams(
-    filter=cell_filter, cell_size=nuc_params.cell_size, d_theta=0.1, force_magnitude=1.0
+    filter=cell_filter,
+    d_theta=0.1,
+    force_magnitude=1.0,
 )
 active_plugin = ActiveSwimmer(params=active_params)
 

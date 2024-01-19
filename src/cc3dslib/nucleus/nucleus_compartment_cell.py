@@ -14,7 +14,13 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
     """Steppable to set up compartmentalized cells with a nucleus and cytoplasm.
 
     Usage of this steppable requires the simulation to have two cell types
-    defined, one for the nucleus and one for the cytoplasm.
+    defined, one for the nucleus and one for the cytoplasm. This steppable sets up the
+    most basic Hamiltonian for a cell containing a nucleus. This includes the cell
+    types "Cytoplasm" with ID 1 and "Nucleus" with ID 2. Default contact energies for
+    the contact plugin are set in `NucleusCompartmentCellParams`. Finally, a volume
+    constraint is set on both the nucleus and the cytoplasm. The target volume is set
+    automatically upon setup. The Lagrange multiplier can be set for the nucleus and
+    cytoplasm individually in the `NucleusCompartmentCellParams` class.
     """
 
     # missing type hints
@@ -44,7 +50,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         """Create new cells in a regular grid with the nucleus in the centre."""
         start_x, start_y, end_x, end_y = self.params.box
 
-        cell_size = self.params.cell_size
+        cell_size = self.params.diameter
         nuc_size = int(cell_size * self.params.nucleus_size_ratio)
         nuc_start = int((cell_size - nuc_size) / 2)
         nuc_end = nuc_start + nuc_size
@@ -52,7 +58,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         for x in np.arange(start_x, end_x, cell_size).astype(np.float64):
             for y in np.arange(start_y, end_y, cell_size).astype(np.float64):
                 self.cell_field[
-                    x : x + cell_size, y : y + self.params.cell_size, 0
+                    x : x + cell_size, y : y + self.params.diameter, 0
                 ] = self.new_cell(self.CYTOPLASM)
 
                 self.cell_field[
@@ -73,17 +79,17 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
 
     def _assign_volume_terms(self):
         """Assign the volume terms for each cell according to the cell size."""
-        cell_vol = self.params.cell_size**2
+        cell_vol = self.params.diameter**2
         nuc_vol = self.params.nucleus_size_ratio**2 * cell_vol
         cyto_vol = cell_vol - nuc_vol
 
         for cell in self.cell_list_by_type(self.NUCLEUS):
             cell.targetVolume = nuc_vol
-            cell.lambdaVolume = self.params.lambda_nuc
+            cell.lambdaVolume = self.params.nuc_lambda_volume
 
         for cell in self.cell_list_by_type(self.CYTOPLASM):
             cell.targetVolume = cyto_vol
-            cell.lambdaVolume = self.params.lambda_cell
+            cell.lambdaVolume = self.params.cyto_lambda_volume
 
     def step(self, _):
         pass
@@ -100,7 +106,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
     def n_clusters(self) -> int:
         """Return the number of clusters created by this steppable."""
         start_x, start_y, end_x, end_y = self.params.box
-        cell_size = self.params.cell_size
+        cell_size = self.params.diameter
 
         return int((end_x - start_x) / cell_size) * int((end_y - start_y) / cell_size)
 
@@ -113,7 +119,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
 
         contact_plugin = ElementCC3D("Plugin", {"Name": "Contact"})
 
-        for (type1, type2), j in self.params.J.items():
+        for (type1, type2), j in self.params.contact_energy.items():
             contact_plugin.ElementCC3D(
                 "Energy", {"Type1": type1, "Type2": type2}, str(j)
             )
@@ -122,7 +128,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
 
         contact_internal_plugin = ElementCC3D("Plugin", {"Name": "ContactInternal"})
 
-        for (type1, type2), j in self.params.J_internal.items():
+        for (type1, type2), j in self.params.contact_internal.items():
             contact_internal_plugin.ElementCC3D(
                 "Energy", {"Type1": type1, "Type2": type2}, str(j)
             )
@@ -155,8 +161,8 @@ def _default_j() -> dict[tuple[CellType, CellType], float]:
         ("Medium", "Cytoplasm"): 40.0,
         ("Medium", "Nucleus"): 3.0,
         ("Cytoplasm", "Cytoplasm"): 3.0,
-        ("Cytoplasm", "Nucleus"): 250.0,
-        ("Nucleus", "Nucleus"): 480.0,
+        ("Cytoplasm", "Nucleus"): 1000.0,
+        ("Nucleus", "Nucleus"): 1000.0,
     }
 
 
@@ -170,16 +176,32 @@ def _default_j_internal() -> dict[tuple[CellType, CellType], float]:
 
 @dataclass
 class NucleusCompartmentCellParams:
-    """Parameters for NucleusCompartmentCell."""
+    """Parameters for NucleusCompartmentCell:
+
+    Attributes:
+        - box (tuple[int, int, int, int]): The size of the box that is supposed to be
+          filled with a confluent layer of compartmentalised nucleus cells
+        - diameter (int): Diameter of the cytoplasm in pixels
+        - nucleus_size_ratio (float): Ratio of the nucleus size (must be between 0 and
+          1). The nucleus diamter is thus `nucleus_size_ratio * diameter`
+        - cyto_lambda_volume (float): Lagrange multiplier of the cytoplasm volume
+          constraint
+        - nuc_lambda_volume (float): Lagrance multiplier of the nucleus volume
+          constraint
+        - contact_energy (dict): Dictionary of contact energies between cell types.
+        - contact_internal (dict): Dictionary of contact energies between cell nucleus
+          and cytoplasm
+
+    """
 
     box: tuple[int, int, int, int]
-    cell_size: int = 20
+    diameter: int = 20
     nucleus_size_ratio: float = 0.2
-    lambda_cell: float = 0.1
-    lambda_nuc: float = 1.0
-    J: dict[tuple[CellType, CellType], float] = field(
+    cyto_lambda_volume: float = 0.1
+    nuc_lambda_volume: float = 1.0
+    contact_energy: dict[tuple[CellType, CellType], float] = field(
         default_factory=_default_j,
     )
-    J_internal: dict[tuple[CellType, CellType], float] = field(
+    contact_internal: dict[tuple[CellType, CellType], float] = field(
         default_factory=_default_j_internal,
     )

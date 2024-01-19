@@ -15,11 +15,11 @@ sim_params = PottsParams(dimensions=(100, 100, 1), steps=1_000_000)
 nuc_params = NucleusCompartmentCellParams(
     box=(0, 0, *sim_params.dimensions[:2]),
     nucleus_size_ratio=0.4,
-    lambda_nuc=2.0,
-    lambda_cell=3.0,
+    nuc_lambda_volume=2.0,
+    cyto_lambda_volume=3.0,
 )
-nuc_params.J[("Cytoplasm", "Cytoplasm")] = 2.0
-nuc_params.J_internal[("Cytoplasm", "Nucleus")] = 2.0
+nuc_params.contact_energy[("Cytoplasm", "Cytoplasm")] = 2.0
+nuc_params.contact_internal[("Cytoplasm", "Nucleus")] = 2.0
 nuc_steppable = NucleusCompartmentCell(params=nuc_params)
 nuc_cells = NucleusCompartmentCell(params=nuc_params)
 
@@ -42,7 +42,6 @@ def unravel(data) -> Iterator[list[CellG]]:
 
 active_params = ActiveSwimmerParams(
     filter=RandomFractionFilter(cell_filter, 0.25).transform(unravel),
-    cell_size=nuc_params.cell_size,
     d_theta=0.1,
     force_magnitude=10.0,
 )

@@ -86,7 +86,7 @@ nuc_plugin = NucleusCompartmentCell(params=nuc_params)
 # active force
 cell_filter = CompartmentFilter()
 active_params = ActiveSwimmerParams(
-    filter=cell_filter, cell_size=nuc_params.cell_size, d_theta=0.1, force_magnitude=1.0
+    filter=cell_filter, cell_size=nuc_params.diameter, d_theta=0.1, force_magnitude=1.0
 )
 active_plugin = ActiveSwimmer(params=active_params)
 

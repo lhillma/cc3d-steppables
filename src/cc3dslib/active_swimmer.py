@@ -15,7 +15,6 @@ class ActiveSwimmerParams:
     filter: Filter[list[CellG]]
     d_theta: float = 0.1
     force_magnitude: float = 0.8
-    cell_size: float = 1
 
 
 class ActiveSwimmer(SteppableBasePy, Element):
