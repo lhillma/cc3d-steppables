@@ -12,6 +12,7 @@ class RandomFractionFilter(Filter[T], Generic[T]):
     """Randomly select a given fraction of the elements a filter returns"""
 
     def __init__(self, filter: Filter[T], fraction: float):
+        super().__init__(frequency=float("inf"))
         self.filter = filter
         self.fraction = fraction
         self.indices: np.ndarray | None = None
