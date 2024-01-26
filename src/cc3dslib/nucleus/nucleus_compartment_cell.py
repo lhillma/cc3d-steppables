@@ -124,7 +124,9 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
                 "Energy", {"Type1": type1, "Type2": type2}, str(j)
             )
 
-        contact_plugin.ElementCC3D("NeighborOrder", {}, "2")
+        contact_plugin.ElementCC3D(
+            "NeighborOrder", {}, str(self.params.neighbour_order_contact)
+        )
 
         contact_internal_plugin = ElementCC3D("Plugin", {"Name": "ContactInternal"})
 
@@ -133,11 +135,16 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
                 "Energy", {"Type1": type1, "Type2": type2}, str(j)
             )
 
-        contact_internal_plugin.ElementCC3D("NeighborOrder", {}, "2")
+        contact_internal_plugin.ElementCC3D(
+            "NeighborOrder", {}, str(self.params.neighbour_order_internal)
+        )
 
         neighbour_plugin = ElementCC3D("Plugin", {"Name": "NeighborTracker"})
 
         volume_plugin = ElementCC3D("Plugin", {"Name": "Volume"})
+        volume_plugin.ElementCC3D(
+            "NeighborOrder", {}, str(self.params.neighbour_order_volume)
+        )
 
         connectivity_plugin = ElementCC3D("Plugin", {"Name": "Connectivity"})
         connectivity_plugin.ElementCC3D("Penalty", {}, "100000")
@@ -205,3 +212,6 @@ class NucleusCompartmentCellParams:
     contact_internal: dict[tuple[CellType, CellType], float] = field(
         default_factory=_default_j_internal,
     )
+    neighbour_order_contact: int = 20
+    neighbour_order_internal: int = 20
+    neighbour_order_volume: int = 20
