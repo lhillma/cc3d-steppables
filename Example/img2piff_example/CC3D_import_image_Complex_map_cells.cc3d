@@ -1,0 +1,5 @@
+<Simulation version="4.2.3">
+   <PythonScript Type="PythonScript">Simulation/CC3D_import_image_Complex_map_cells.py</PythonScript>
+   <Resource Type="Python">Simulation/CC3D_import_image_Complex_map_cellsSteppables.py</Resource>
+   <Resource Type="Python">Simulation/CC3D_import_image_Complex_map_cells_Parameters.py</Resource>
+</Simulation>

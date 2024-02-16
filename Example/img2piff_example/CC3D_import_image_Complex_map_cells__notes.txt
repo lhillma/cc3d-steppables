@@ -1,0 +1,34 @@
+The goal of this CC3D project is to;
+1. read a bmp (or jpg, png, ...) image showing a cell layout (probably create in a simple drawing program)
+2. convert the image into a set of cells in CC3D
+3. save the resulting CC3D layout as a piff file
+
+
+Need to install PIL
+
+Note that if cell boundary display is turned on in Player then you may get the entire
+field colored by the boarder color after all pixels in the image are made into individual cells.
+
+Tested with formats:
+1. gif: NO
+2. jpg: OK
+3. png: OK
+4. bmp: OK
+
+This version is for importing a cell field drawing and maping to CC3D cells.
+The parameters, file names, colors etc. are in a "CC3D_import_image_Complex_map_cells_parameters.py" file
+
+The drwaing should NOT be antialiased (aliasing fuzzy's up the borders).
+Use Black for cell boundaries (boundaries are not needed between cells of different types tough it is 
+easiest to have all teh cells with boundaries.
+
+The image should be about the same pixel dimension that it will be used in CC3D. This code can not interpolate 
+or extrapolate to fit the image into a CC3D window of different dimensions. It could put a smaller image into 
+a larger CC3D windo though.
+
+
+Use white for medium (255,255,255)
+Use Black for cell boundaries (0,0,0)
+Simple colors are a bit easier (though you can use any color), so start with red (255,0,0), green (0,255,0), blue (0,0,255),...
+All cells of the same type should have the same color.
+
