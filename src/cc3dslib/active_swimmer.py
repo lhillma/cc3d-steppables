@@ -48,7 +48,16 @@ class ActiveSwimmer(SteppableBasePy, Element):
     def finish(self):
         pass
 
+    def stop(self):
+        pass
+
     def build(self) -> list[ElementCC3D]:
         root_node = ElementCC3D("Plugin", {"Name": "ExternalPotential"})
         root_node.ElementCC3D("Algorithm", {}, "CenterOfMassBased")
+
+        # This translates to
+        # <Plugin Name="ExternalPotential">
+        #   <Algorithm">"CentreOfMassBased"</Algorithm>
+        # </Plugin>
+
         return [root_node]
