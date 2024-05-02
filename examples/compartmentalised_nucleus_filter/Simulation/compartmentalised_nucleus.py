@@ -43,7 +43,7 @@ def unravel(data) -> Iterator[list[CellG]]:
 active_params = ActiveSwimmerParams(
     filter=RandomFractionFilter(cell_filter, 0.25).transform(unravel),
     d_theta=0.1,
-    force_magnitude=10.0,
+    force_magnitude=(200, 5) #Mean: 200, Standard deviation: 5
 )
 
 (

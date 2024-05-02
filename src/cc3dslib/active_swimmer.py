@@ -9,16 +9,24 @@ from cc3d.core.XMLUtils import ElementCC3D
 
 import numpy as np
 
+from typing import List
+from typing import Tuple
+
+#import random
+#from collections import defaultdict
+
+
+
 
 @dataclass
 class ActiveSwimmerParams:
-    filter: Filter[list[CellG]]
-    d_theta: float = 0.1
-    force_magnitude: float = 0.8
-
+    filter: Filter[List[CellG]]
+    force_magnitude: Tuple[float, float]
+    d_theta: float
 
 class ActiveSwimmer(SteppableBasePy, Element):
     def __init__(self, params: ActiveSwimmerParams, frequency=1):
+        
         super().__init__(frequency)
 
         self.params = params
@@ -33,13 +41,15 @@ class ActiveSwimmer(SteppableBasePy, Element):
 
         for compartments, angle in zip(
             self.params.filter(),
-            self.angles,
+            self.angles
         ):
             for cell in compartments:
+                #generate force magnitude from a normal distribution
+                force_magnitude_normal = np.random.normal(self.params.force_magnitude[0], self.params.force_magnitude[1])
                 # force component along X axis
-                cell.lambdaVecX = self.params.force_magnitude * np.cos(angle)
+                cell.lambdaVecX = force_magnitude_normal * np.cos(angle)
                 # force component along Y axis
-                cell.lambdaVecY = self.params.force_magnitude * np.sin(angle)
+                cell.lambdaVecY = force_magnitude_normal * np.sin(angle)
 
         self.angles += (
             np.random.random(size=self.angles.shape) - 0.5
@@ -47,7 +57,6 @@ class ActiveSwimmer(SteppableBasePy, Element):
 
     def finish(self):
         pass
-
     def build(self) -> list[ElementCC3D]:
         root_node = ElementCC3D("Plugin", {"Name": "ExternalPotential"})
         root_node.ElementCC3D("Algorithm", {}, "CenterOfMassBased")
