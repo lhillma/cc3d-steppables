@@ -16,8 +16,6 @@ from typing import Tuple
 #from collections import defaultdict
 
 
-
-
 @dataclass
 class ActiveSwimmerParams:
     filter: Filter[List[CellG]]
@@ -39,17 +37,24 @@ class ActiveSwimmer(SteppableBasePy, Element):
         if self.angles is None:
             return
 
-        for compartments, angle in zip(
-            self.params.filter(),
-            self.angles
-        ):
-            for cell in compartments:
-                #generate force magnitude from a normal distribution
-                force_magnitude_normal = np.random.normal(self.params.force_magnitude[0], self.params.force_magnitude[1])
-                # force component along X axis
-                cell.lambdaVecX = force_magnitude_normal * np.cos(angle)
-                # force component along Y axis
-                cell.lambdaVecY = force_magnitude_normal * np.sin(angle)
+        with open('force_list.txt', 'w') as f:
+            for compartments, angle in zip(
+                self.params.filter(),
+                self.angles
+            ):
+                force_list = []
+
+                for cell in compartments:
+                    # generate force magnitude from a normal distribution
+                    force_magnitude_normal = np.random.normal(self.params.force_magnitude[0], self.params.force_magnitude[1])
+                    force_list.append(force_magnitude_normal)
+                    # force component along X axis
+                    cell.lambdaVecX = force_magnitude_normal * np.cos(angle)
+                    # force component along Y axis
+                    cell.lambdaVecY = force_magnitude_normal * np.sin(angle)
+
+                for value in force_list:
+                    f.write(f"{value}\n")
 
         self.angles += (
             np.random.random(size=self.angles.shape) - 0.5
