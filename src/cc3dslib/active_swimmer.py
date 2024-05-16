@@ -40,13 +40,15 @@ class ActiveSwimmer(SteppableBasePy, Element):
     def step(self, _):
         if self.angles is None:
             return
+        force_list = []
+        for value in force_list:
+            f.write(f"{value}\n")
 
         with open('force_list.txt', 'w') as f:
             for compartments, angle in zip(
                 self.params.filter(),
                 self.angles
             ):
-                force_list = []
                 # generate force magnitude from a normal distribution
                 force_magnitude_normal = self.cell_force_magnitudes[compartments[0].id]
                 force_list.append(force_magnitude_normal)
@@ -56,8 +58,7 @@ class ActiveSwimmer(SteppableBasePy, Element):
                     cell.lambdaVecX = force_magnitude_normal * np.cos(angle)
                     # force component along Y axis
                     cell.lambdaVecY = force_magnitude_normal * np.sin(angle)
-                for value in force_list:
-                    f.write(f"{value}\n")
+
 
         self.angles += (
             np.random.random(size=self.angles.shape) - 0.5
