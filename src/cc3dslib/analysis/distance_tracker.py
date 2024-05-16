@@ -41,10 +41,10 @@ class DistanceTracker(SteppableBasePy, Element):
             maxshape=(None, n_particles, self.dims),
         )
         self.distances = np.empty((self.chunk_size, n_particles, self.dims))
-        self.prev_coms = np.empty((n_particles, 3))
+        self.last_coms = np.empty((n_particles, 3))
 
         for i, cell in enumerate(self.cell_list):
-            self.prev_coms[i, :] = [
+            self.last_coms[i, :] = [
                 cell.xCOM,
                 cell.yCOM,
                 0 if self.dims == 2 else cell.zCOM,
@@ -59,12 +59,12 @@ class DistanceTracker(SteppableBasePy, Element):
 
         for i, cell in enumerate(self.cell_list):
             current_com = [cell.xCOM, cell.yCOM, 0 if self.dims == 2 else cell.zCOM]
-            previous_com = self.prev_coms[i, :]
+            previous_com = self.last_coms[i, :]
             self.distances[
                 self.steps % self.chunk_size, i, :
             ] = self.invariant_distance_vector(current_com, previous_com)[: self.dims]
 
-            self.prev_coms[i, :] = current_com
+            self.last_coms[i, :] = current_com
 
         self.steps += 1
 
