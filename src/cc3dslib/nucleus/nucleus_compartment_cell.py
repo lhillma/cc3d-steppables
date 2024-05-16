@@ -8,6 +8,7 @@ from cc3d.core.XMLUtils import ElementCC3D
 from cc3d.cpp import CompuCell
 
 from cc3dslib.simulation import Element
+import random
 
 
 class NucleusCompartmentCell(SteppableBasePy, Element):
@@ -29,8 +30,10 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
     cell_field: CompuCell.cellfield
 
     def __init__(
-        self,
-        params: "NucleusCompartmentCellParams",
+            self,
+            params: "NucleusCompartmentCellParams",
+            nucleus_size_ratio_range: tuple[float, float] = (0.4, 0.6)
+            # Add nucleus_size_ratio parameter separately from NucleusCompartmentCellParams.
     ):
         """Initialize steppable."""
         # Since this steppable is only an initializer, it should only run once, thus
@@ -38,6 +41,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         super().__init__(frequency=float("inf"))
 
         self.params = params
+        self.nucleus_size_ratio_range = nucleus_size_ratio_range
         self._cluster_ids: np.ndarray = np.array([])
 
     def start(self):
@@ -51,25 +55,26 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         start_x, start_y, end_x, end_y = self.params.box
 
         cell_size = self.params.diameter
-        nuc_size = int(cell_size * self.params.nucleus_size_ratio)
-        nuc_start = int((cell_size - nuc_size) / 2)
-        nuc_end = nuc_start + nuc_size
 
         for x in np.arange(start_x, end_x, cell_size).astype(np.float64):
             for y in np.arange(start_y, end_y, cell_size).astype(np.float64):
+                nuc_size = int(cell_size * ((self.nucleus_size_ratio_range[0] + self.nucleus_size_ratio_range[1]) / 2))
+                #nuc_size = int(cell_size * (0.4 + (0.6 - 0.4) * random.random()))
+                nuc_start = int((cell_size - nuc_size) / 2)
+                nuc_end = nuc_start + nuc_size
                 self.cell_field[
-                    x : x + cell_size, y : y + self.params.diameter, 0
+                x: x + cell_size, y: y + self.params.diameter, 0
                 ] = self.new_cell(self.CYTOPLASM)
 
                 self.cell_field[
-                    x + nuc_start : x + nuc_end, y + nuc_start : y + nuc_end, 0
+                x + nuc_start: x + nuc_end, y + nuc_start: y + nuc_end, 0
                 ] = self.new_cell(self.NUCLEUS)
 
     def _assign_cell_custer_ids(self):
         """Assign the same cluster ID to the nucleus and cytoplasm of each cell."""
         cluster_ids: list[int] = []
         for cyto_cell, nuc_cell in zip(
-            self.cell_list_by_type(self.CYTOPLASM), self.cell_list_by_type(self.NUCLEUS)
+                self.cell_list_by_type(self.CYTOPLASM), self.cell_list_by_type(self.NUCLEUS)
         ):
             cluster_id = cyto_cell.clusterId
             self.reassign_cluster_id(nuc_cell, cluster_id)
@@ -79,17 +84,32 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
 
     def _assign_volume_terms(self):
         """Assign the volume terms for each cell according to the cell size."""
-        cell_vol = self.params.diameter**2
-        nuc_vol = self.params.nucleus_size_ratio**2 * cell_vol
-        cyto_vol = cell_vol - nuc_vol
+        cell_vol = self.params.diameter ** 2
+        nuc_vol_list = []
+        cyto_vol_list = []
 
-        for cell in self.cell_list_by_type(self.NUCLEUS):
-            cell.targetVolume = nuc_vol
-            cell.lambdaVolume = self.params.nuc_lambda_volume
+        # nuc_vol = (self.nucleus_size_ratio_range**2 * cell_vol)
+        for cyto_cell, nuc_cell in zip(
+                self.cell_list_by_type(self.CYTOPLASM), self.cell_list_by_type(self.NUCLEUS)
+        ):
+            nuc_vol = ((0.4 + (0.6 - 0.4) * random.random()) ** 2 * cell_vol)
+            cyto_vol = cell_vol - nuc_vol
 
-        for cell in self.cell_list_by_type(self.CYTOPLASM):
-            cell.targetVolume = cyto_vol
-            cell.lambdaVolume = self.params.cyto_lambda_volume
+            nuc_vol_list.append(nuc_vol)
+            cyto_vol_list.append(cyto_vol)
+
+            cyto_cell.targetVolume = cyto_vol
+            nuc_cell.targetVolume = nuc_vol
+            cyto_cell.lambdaVolume = self.params.cyto_lambda_volume
+            nuc_cell.lambdaVolume = self.params.nuc_lambda_volume
+
+        with open('cyto_vol_list.txt', 'w') as f:
+            for value in cyto_vol_list:
+                f.write(f"{value}\n")
+
+        with open('nuc_vol_list.txt', 'w') as g:
+            for value_2 in nuc_vol_list:
+                g.write(f"{value_2}\n")
 
     def step(self, _):
         pass
@@ -203,7 +223,7 @@ class NucleusCompartmentCellParams:
 
     box: tuple[int, int, int, int]
     diameter: int = 20
-    nucleus_size_ratio: float = 0.2
+    #nucleus_size_ratio: float = 0.2
     cyto_lambda_volume: float = 0.1
     nuc_lambda_volume: float = 1.0
     contact_energy: dict[tuple[CellType, CellType], float] = field(
