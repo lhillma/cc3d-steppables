@@ -59,7 +59,6 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         for x in np.arange(start_x, end_x, cell_size).astype(np.float64):
             for y in np.arange(start_y, end_y, cell_size).astype(np.float64):
                 nuc_size = int(cell_size * ((self.nucleus_size_ratio_range[0] + self.nucleus_size_ratio_range[1]) / 2))
-                #nuc_size = int(cell_size * (0.4 + (0.6 - 0.4) * random.random()))
                 nuc_start = int((cell_size - nuc_size) / 2)
                 nuc_end = nuc_start + nuc_size
                 self.cell_field[
