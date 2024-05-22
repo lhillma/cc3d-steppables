@@ -32,7 +32,8 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
     def __init__(
             self,
             params: "NucleusCompartmentCellParams",
-            nucleus_size_ratio_range: tuple[float, float] = (0.4, 0.6)
+            # nucleus_size_ratio_range: tuple[float, float] = (0.4, 0.6)
+            nucleus_size_ratio_range: tuple[float, float] = (0.16, 0.03)  # Mean, sd
             # Add nucleus_size_ratio parameter separately from NucleusCompartmentCellParams.
     ):
         """Initialize steppable."""
@@ -58,7 +59,8 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
 
         for x in np.arange(start_x, end_x, cell_size).astype(np.float64):
             for y in np.arange(start_y, end_y, cell_size).astype(np.float64):
-                nuc_size = int(cell_size * ((self.nucleus_size_ratio_range[0] + self.nucleus_size_ratio_range[1]) / 2))
+                # nuc_size = int(cell_size * ((self.nucleus_size_ratio_range[0] + self.nucleus_size_ratio_range[1]) / 2))
+                nuc_size = int(cell_size * self.nucleus_size_ratio_range[0])
                 nuc_start = int((cell_size - nuc_size) / 2)
                 nuc_end = nuc_start + nuc_size
                 self.cell_field[
@@ -91,7 +93,13 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         for cyto_cell, nuc_cell in zip(
                 self.cell_list_by_type(self.CYTOPLASM), self.cell_list_by_type(self.NUCLEUS)
         ):
-            nuc_vol = ((0.4 + (0.6 - 0.4) * random.random()) ** 2 * cell_vol)
+#            nuc_vol = ((0.4 + (0.6 - 0.4) * random.random()) ** 2 * cell_vol)
+            nuc_vol_rand = np.random.normal(loc=self.nucleus_size_ratio_range[0], scale=self.nucleus_size_ratio_range[1])
+            while nuc_vol_rand < 0:
+                nuc_vol_rand = np.random.normal(loc=self.nucleus_size_ratio_range[0], scale=self.nucleus_size_ratio_range[1])
+            nuc_vol = nuc_vol_rand * cell_vol  # Volume_randomization is ratio between nucleus volume and cell volume
+            # nuc_vol = np.random.normal(loc=self.nucleus_size_ratio_range[0], scale=self.nucleus_size_ratio_range[1]) ** 2 * cell_vol
+
             cyto_vol = cell_vol - nuc_vol
 
             nuc_vol_list.append(nuc_vol)
