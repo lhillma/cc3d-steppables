@@ -33,7 +33,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
             self,
             params: "NucleusCompartmentCellParams",
             # nucleus_size_ratio_range: tuple[float, float] = (0.4, 0.6)
-            nucleus_size_ratio_range: tuple[float, float] = (0.16, 0.05)  # Mean, sd
+            nucleus_size_ratio_range: tuple[float, float] = (0.35, 0.05)  # Mean, sd
             # Add nucleus_size_ratio parameter separately from NucleusCompartmentCellParams.
     ):
         """Initialize steppable."""
