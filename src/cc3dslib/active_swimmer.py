@@ -51,22 +51,22 @@ class ActiveSwimmer(SteppableBasePy, Element):
         if self.angles is None:
             return
 
-            for compartments, angle in zip(
-                self.params.filter(),
-                self.angles
-            ):
-            # generate force magnitude from a normal distribution
-                if msc < self.params.change_timestep:
-                    force_magnitude_normal = self.params.motility
-                    # print(msc, force_magnitude_normal)
-                else:
-                    force_magnitude_normal = self.cell_force_magnitudes[compartments[0].id]
+        for compartments, angle in zip(
+            self.params.filter(),
+            self.angles
+        ):
+        # generate force magnitude from a normal distribution
+            if msc < self.params.change_timestep:
+                force_magnitude_normal = self.params.motility
+                # print(msc, force_magnitude_normal)
+            else:
+                force_magnitude_normal = self.cell_force_magnitudes[compartments[0].id]
 
-                for cell in compartments:
-                    # force component along X axis
-                    cell.lambdaVecX = force_magnitude_normal * np.cos(angle)
-                    # force component along Y axis
-                    cell.lambdaVecY = force_magnitude_normal * np.sin(angle)
+            for cell in compartments:
+                # force component along X axis
+                cell.lambdaVecX = force_magnitude_normal * np.cos(angle)
+                # force component along Y axis
+                cell.lambdaVecY = force_magnitude_normal * np.sin(angle)
 
         self.angles += (
             np.random.random(size=self.angles.shape) - 0.5
