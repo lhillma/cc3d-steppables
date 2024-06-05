@@ -21,6 +21,7 @@ class ActiveSwimmerParams:
     filter: Filter[List[CellG]]
     force_magnitude: Tuple[float, float]
     d_theta: float
+    change_timestep: float
 
 class ActiveSwimmer(SteppableBasePy, Element):
     def __init__(self, params: ActiveSwimmerParams, frequency=1):
@@ -34,30 +35,40 @@ class ActiveSwimmer(SteppableBasePy, Element):
     def start(self):
         self.angles = np.random.random(size=len(list(self.params.filter()))) * 2 * np.pi
 
-        for compartments in self.params.filter():
-                self.cell_force_magnitudes[compartments[0].id] = np.random.normal(self.params.force_magnitude[0], self.params.force_magnitude[1])
-
-    def step(self, _):
-        if self.angles is None:
-            return
-
         with open('force_list.txt', 'w') as f:
             for compartments, angle in zip(
                 self.params.filter(),
                 self.angles
             ):
                 force_list = []
-                # generate force magnitude from a normal distribution
-                force_magnitude_normal = self.cell_force_magnitudes[compartments[0].id]
-                force_list.append(force_magnitude_normal)
 
-                for cell in compartments:
-                    # force component along X axis
-                    cell.lambdaVecX = force_magnitude_normal * np.cos(angle)
-                    # force component along Y axis
-                    cell.lambdaVecY = force_magnitude_normal * np.sin(angle)
-                for value in force_list:
-                    f.write(f"{value}\n")
+        for compartments in self.params.filter():
+                self.cell_force_magnitudes[compartments[0].id] = np.random.normal(self.params.force_magnitude[0], self.params.force_magnitude[1])
+
+        # Set initial motility value
+        self.params.motility = 200
+
+
+    def step(self, msc):
+
+        if self.angles is None:
+            return
+
+                # generate force magnitude from a normal distribution
+            if msc < self.params.change_timestep:
+                force_magnitude_normal = self.params.motility
+                # print(msc, force_magnitude_normal)
+            else:
+                force_magnitude_normal = self.cell_force_magnitudes[compartments[0].id]
+            force_list.append(force_magnitude_normal)
+
+            for cell in compartments:
+                # force component along X axis
+                cell.lambdaVecX = force_magnitude_normal * np.cos(angle)
+                # force component along Y axis
+                cell.lambdaVecY = force_magnitude_normal * np.sin(angle)
+            for value in force_list:
+                f.write(f"{value}\n")
 
         self.angles += (
             np.random.random(size=self.angles.shape) - 0.5
