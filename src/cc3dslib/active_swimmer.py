@@ -15,6 +15,8 @@ class ActiveSwimmerParams:
     filter: Filter[list[CellG]]
     d_theta: float = 0.1
     force_magnitude: float = 0.8
+    initial_magnitude: float = 0.0
+    initial_steps: int = 0
 
 
 class ActiveSwimmer(SteppableBasePy, Element):
@@ -27,9 +29,15 @@ class ActiveSwimmer(SteppableBasePy, Element):
     def start(self):
         self.angles = np.random.random(size=len(list(self.params.filter()))) * 2 * np.pi
 
-    def step(self, _):
+    def step(self, mcs: int):
         if self.angles is None:
             return
+
+        force = (
+            self.params.force_magnitude
+            if mcs >= self.params.initial_steps
+            else self.params.initial_magnitude
+        )
 
         for compartments, angle in zip(
             self.params.filter(),
@@ -37,9 +45,9 @@ class ActiveSwimmer(SteppableBasePy, Element):
         ):
             for cell in compartments:
                 # force component along X axis
-                cell.lambdaVecX = self.params.force_magnitude * np.cos(angle)
+                cell.lambdaVecX = force * np.cos(angle)
                 # force component along Y axis
-                cell.lambdaVecY = self.params.force_magnitude * np.sin(angle)
+                cell.lambdaVecY = force * np.sin(angle)
 
         self.angles += (
             np.random.random(size=self.angles.shape) - 0.5
