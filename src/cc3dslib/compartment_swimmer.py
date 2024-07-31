@@ -22,9 +22,11 @@ class CompartmentSwimmer(SteppableBasePy, Element):
         self.last_coms: np.ndarray | None = None
         self.max_compartment_size = 0
 
+        self.box_size = None
+
     def start(self):
         n_cells = len(list(self.params.filter()))
-        self.angles = np.random.random(size=n_cells) * 2 * np.pi
+        self.angles = 0 * np.random.random(size=n_cells) * 2 * np.pi
 
         self.max_compartment_size = 0
         for cells in self.params.filter():
@@ -32,6 +34,13 @@ class CompartmentSwimmer(SteppableBasePy, Element):
 
         self.coms = np.zeros((n_cells, 3))
         self.last_coms = np.zeros((n_cells, self.max_compartment_size, 3))
+        for i, cells in enumerate(self.params.filter()):
+            self.last_coms[i, : len(cells), :] = np.array(
+                [self._get_com(cell) for cell in cells]
+            )
+
+        box_coords = self.get_box_coordinates()[1]
+        self.box_size = np.array([box_coords.x, box_coords.y, box_coords.z])
 
     def step(self, mcs: int):
         self._update_coms()
@@ -60,9 +69,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                     cell_com = self._get_com(cell)
 
                     k = 1e-3 * force_magnitude * cell.targetVolume
-                    force = k * self.invariant_distance_vector(
-                        compartment_com, cell_com
-                    )
+                    force = k * self._unwrapped_distance(compartment_com, cell_com)
                     cell.lambdaVecX = force[0]
                     # force component along Y axis
                     cell.lambdaVecY = force[1]
@@ -87,7 +94,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
             cell_volumes = np.array([cell.volume for cell in cells])
             old_coms = self.last_coms[i, : len(cells), :]
 
-            unwrapped_coms = self._unwrapped_distance(old_coms, new_coms)
+            unwrapped_coms = old_coms + self._unwrapped_distance(old_coms, new_coms)
 
             self.coms[i, :] = np.average(unwrapped_coms, weights=cell_volumes, axis=0)
             self.last_coms[i, :, :] = unwrapped_coms
@@ -127,12 +134,16 @@ class CompartmentSwimmer(SteppableBasePy, Element):
         np.ndarray
             The unwrapped center of mass positions.
         """
+        assert self.box_size is not None
+
         diff = np.empty_like(old_coms)
         for j in range(len(diff)):
-            diff[j] = -self.invariant_distance_vector(new_coms[j], old_coms[j])
+            diff[j] = new_coms[j] - old_coms[j]
+            diff -= np.rint(diff / self.box_size * 2) * self.box_size / 2
+        return diff
 
-        new_coms = old_coms + diff
-        return new_coms
+        # new_coms = old_coms + diff
+        # return new_coms
 
     def finish(self):
         pass
