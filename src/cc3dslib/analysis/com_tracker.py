@@ -66,7 +66,11 @@ class COMTracker(SteppableBasePy, Element):
             cell_volumes = np.array([cell.volume for cell in cells])
             old_coms = self.last_coms[i, : len(cells), :]
 
-            unwrapped_coms = self._unwrapped_distance(old_coms, new_coms)
+            if cell_volumes.sum() == 0:
+                unwrapped_coms = np.zeros_like(new_coms)
+                cell_volumes = np.ones_like(cell_volumes)
+            else:
+                unwrapped_coms = self._unwrapped_distance(old_coms, new_coms)
 
             self.coms[self.steps % self.chunk_size, i, :] = np.average(
                 unwrapped_coms, weights=cell_volumes, axis=0
