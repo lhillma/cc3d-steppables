@@ -1,4 +1,5 @@
 """Steppable for active swimmer cells in the Simulation."""
+
 from dataclasses import dataclass
 from cc3d.cpp.CompuCell import CellG
 from cc3dslib.filter import Filter
