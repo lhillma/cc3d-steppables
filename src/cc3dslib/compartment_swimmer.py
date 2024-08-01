@@ -26,7 +26,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
 
     def start(self):
         n_cells = len(list(self.params.filter()))
-        self.angles = 0 * np.random.random(size=n_cells) * 2 * np.pi
+        self.angles = np.random.random(size=n_cells) * 2 * np.pi
 
         self.max_compartment_size = 0
         for cells in self.params.filter():
