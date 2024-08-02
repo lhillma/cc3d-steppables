@@ -68,7 +68,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                     compartment_com = self.coms[cidx]
                     cell_com = self._get_com(cell)
 
-                    k = 1e-2 * force_magnitude * np.sqrt(cell.targetVolume)
+                    k = 1e-2 * force_magnitude * cell.targetVolume
                     force = k * self._unwrapped_distance(compartment_com, cell_com)
                     cell.lambdaVecX = force[0]
                     # force component along Y axis
