@@ -1,3 +1,4 @@
+from typing import Literal
 import cc3d
 from cc3d.core.PySteppables import SteppableBasePy
 from cc3d.core.XMLUtils import ElementCC3D
@@ -16,6 +17,7 @@ class PottsParams:
     boundary_x: str = field(default="Periodic")
     boundary_y: str = field(default="Periodic")
     boundary_z: str | None = field(default=None)
+    energy_function_calculator: Literal["Statistics"] | None = field(default=None)
 
 
 class ConfigBuilder:
@@ -43,6 +45,12 @@ class ConfigBuilder:
         potts.ElementCC3D("Boundary_y", {}, params.boundary_y)
         if params.boundary_z is not None:
             potts.ElementCC3D("Boundary_z", {}, params.boundary_z)
+        if params.energy_function_calculator is not None:
+            potts.ElementCC3D(
+                "EnergyFunctionCalculator",
+                {"Type": params.energy_function_calculator},
+                "",
+            )
         return self
 
     def add(self, element: Element) -> "ConfigBuilder":
