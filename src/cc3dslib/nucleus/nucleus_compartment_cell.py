@@ -146,8 +146,8 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
             "NeighborOrder", {}, str(self.params.neighbour_order_volume)
         )
 
-        connectivity_plugin = ElementCC3D("Plugin", {"Name": "Connectivity"})
-        connectivity_plugin.ElementCC3D("Penalty", {}, "100000")
+        # connectivity_plugin = ElementCC3D("Plugin", {"Name": "Connectivity"})
+        # connectivity_plugin.ElementCC3D("Penalty", {}, "100000")
 
         return [
             cell_type,
@@ -155,7 +155,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
             contact_internal_plugin,
             neighbour_plugin,
             volume_plugin,
-            connectivity_plugin,
+            # connectivity_plugin,
         ]
 
 
