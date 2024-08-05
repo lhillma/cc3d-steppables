@@ -67,9 +67,12 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                 if cell.type == 2 and cell.volume > 0:
                     compartment_com = self.coms[cidx]
                     cell_com = self._get_com(cell)
-
-                    k = 1e-2 * force_magnitude * cell.targetVolume
+                    
+                    # spring force (Hooke's law)
+                    k = 1 * force_magnitude #  * cell.targetVolume
                     force = k * self._unwrapped_distance(compartment_com, cell_com)
+
+                    # force component along X axis
                     cell.lambdaVecX = force[0]
                     # force component along Y axis
                     cell.lambdaVecY = force[1]
