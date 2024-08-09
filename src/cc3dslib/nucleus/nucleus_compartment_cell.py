@@ -26,6 +26,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
     # missing type hints
     NUCLEUS: int
     CYTOPLASM: int
+    DUMMY: int
     cell_field: CompuCell.cellfield
 
     def __init__(
@@ -54,6 +55,8 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         nuc_size = int(cell_size * self.params.nucleus_size_ratio)
         nuc_start = int((cell_size - nuc_size) / 2)
         nuc_end = nuc_start + nuc_size
+
+        self.cell_field[:, :, 0] = self.new_cell(self.DUMMY)
 
         for x in np.arange(start_x, end_x, cell_size).astype(np.float64):
             for y in np.arange(start_y, end_y, cell_size).astype(np.float64):
@@ -91,6 +94,13 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
             cell.targetVolume = cyto_vol
             cell.lambdaVolume = self.params.cyto_lambda_volume
 
+        n_cells = len(self.cell_list_by_type(self.CYTOPLASM))
+        box_coords = self.get_box_coordinates()[1]
+        box_size = box_coords.x * box_coords.y
+        for cell in self.cell_list_by_type(self.DUMMY):
+            cell.targetVolume = box_size - n_cells * cell_vol
+            cell.lambdaVolume = self.params.cyto_lambda_volume
+
     def step(self, _):
         pass
 
@@ -116,6 +126,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         cell_type.ElementCC3D("CellType", {"TypeId": "0", "TypeName": "Medium"})
         cell_type.ElementCC3D("CellType", {"TypeId": "1", "TypeName": "Cytoplasm"})
         cell_type.ElementCC3D("CellType", {"TypeId": "2", "TypeName": "Nucleus"})
+        cell_type.ElementCC3D("CellType", {"TypeId": "3", "TypeName": "Dummy"})
 
         contact_plugin = ElementCC3D("Plugin", {"Name": "Contact"})
 
@@ -159,7 +170,7 @@ class NucleusCompartmentCell(SteppableBasePy, Element):
         ]
 
 
-CellType = Literal["Medium", "Cytoplasm", "Nucleus"]
+CellType = Literal["Medium", "Cytoplasm", "Nucleus", "Dummy"]
 
 
 def _default_j() -> dict[tuple[CellType, CellType], float]:
@@ -167,9 +178,13 @@ def _default_j() -> dict[tuple[CellType, CellType], float]:
         ("Medium", "Medium"): 0.0,
         ("Medium", "Cytoplasm"): 40.0,
         ("Medium", "Nucleus"): 3.0,
+        ("Medium", "Dummy"): 3.0,
         ("Cytoplasm", "Cytoplasm"): 3.0,
         ("Cytoplasm", "Nucleus"): 1000.0,
+        ("Cytoplasm", "Dummy"): 3.0,
         ("Nucleus", "Nucleus"): 1000.0,
+        ("Nucleus", "Dummy"): 1000.0,
+        ("Dummy", "Dummy"): 0.0,
     }
 
 
