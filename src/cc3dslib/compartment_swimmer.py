@@ -34,8 +34,8 @@ class CompartmentSwimmer(SteppableBasePy, Element):
 
         self.coms = np.zeros((n_cells, 3))
         self.last_coms = np.zeros((n_cells, self.max_compartment_size, 3))
-        for i, cells_raw in enumerate(self.params.filter()):
-            cells = [c for c in cells_raw if c.type == 1]
+        for i, cells in enumerate(self.params.filter()):
+            # cells = [c for c in cells_raw if c.type == 1]
             self.last_coms[i, : len(cells), :] = np.array(
                 [self._get_com(cell) for cell in cells]
             )
@@ -70,7 +70,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                     cell_com = self._get_com(cell)
                     
                     # spring force (Hooke's law)
-                    k = 1 * force_magnitude #  * cell.targetVolume
+                    k = 0.0 * force_magnitude #  * cell.targetVolume
                     force = k * self._unwrapped_distance(compartment_com, cell_com)
 
                     # force component along X axis
@@ -83,6 +83,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                     # force component along Y axis
                     cell.lambdaVecY = force_magnitude * np.sin(angle)
 
+
     def _update_angles(self):
         if self.angles is None:
             return
@@ -93,8 +94,8 @@ class CompartmentSwimmer(SteppableBasePy, Element):
 
     def _update_coms(self):
         assert self.coms is not None and self.last_coms is not None
-        for i, cells_raw in enumerate(self.params.filter()):
-            cells = [c for c in cells_raw if c.type == 1]
+        for i, cells in enumerate(self.params.filter()):
+            # cells = [c for c in cells_raw if c.type == 1]
             new_coms = np.array([self._get_com(cell) for cell in cells])
             cell_volumes = np.array([cell.volume for cell in cells])
             old_coms = self.last_coms[i, : len(cells), :]
