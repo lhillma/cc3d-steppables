@@ -34,7 +34,8 @@ class CompartmentSwimmer(SteppableBasePy, Element):
 
         self.coms = np.zeros((n_cells, 3))
         self.last_coms = np.zeros((n_cells, self.max_compartment_size, 3))
-        for i, cells in enumerate(self.params.filter()):
+        for i, cells_raw in enumerate(self.params.filter()):
+            cells = [c for c in cells_raw if c.type == 1]
             self.last_coms[i, : len(cells), :] = np.array(
                 [self._get_com(cell) for cell in cells]
             )
@@ -92,7 +93,8 @@ class CompartmentSwimmer(SteppableBasePy, Element):
 
     def _update_coms(self):
         assert self.coms is not None and self.last_coms is not None
-        for i, cells in enumerate(self.params.filter()):
+        for i, cells_raw in enumerate(self.params.filter()):
+            cells = [c for c in cells_raw if c.type == 1]
             new_coms = np.array([self._get_com(cell) for cell in cells])
             cell_volumes = np.array([cell.volume for cell in cells])
             old_coms = self.last_coms[i, : len(cells), :]
@@ -153,5 +155,5 @@ class CompartmentSwimmer(SteppableBasePy, Element):
 
     def build(self) -> list[ElementCC3D]:
         root_node = ElementCC3D("Plugin", {"Name": "ExternalPotential"})
-        root_node.ElementCC3D("Algorithm", {}, "CenterOfMassBased")
+        root_node.ElementCC3D("Algorithm", {}, "PixelBased")
         return [root_node]

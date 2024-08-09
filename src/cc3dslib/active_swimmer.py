@@ -59,5 +59,5 @@ class ActiveSwimmer(SteppableBasePy, Element):
 
     def build(self) -> list[ElementCC3D]:
         root_node = ElementCC3D("Plugin", {"Name": "ExternalPotential"})
-        root_node.ElementCC3D("Algorithm", {}, "CenterOfMassBased")
+        root_node.ElementCC3D("Algorithm", {}, "PixelBased")
         return [root_node]
