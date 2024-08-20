@@ -87,7 +87,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
         if self.angles is None:
             return
 
-        self.angles += (np.random.uniform(size=self.angles.shape)) * np.sqrt(
+        self.angles += (np.random.normal(size=self.angles.shape)) * np.sqrt(
             2 * self.params.d_theta
         )
 
