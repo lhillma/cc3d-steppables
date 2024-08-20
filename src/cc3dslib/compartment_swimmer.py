@@ -68,9 +68,9 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                 if cell.type == 2 and cell.volume > 0:
                     compartment_com = self.coms[cidx]
                     cell_com = self._get_com(cell)
-                    
+
                     # spring force (Hooke's law)
-                    k = 0.0 * force_magnitude #  * cell.targetVolume
+                    k = 0.0 * force_magnitude  #  * cell.targetVolume
                     force = k * self._unwrapped_distance(compartment_com, cell_com)
 
                     # force component along X axis
@@ -83,14 +83,13 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                     # force component along Y axis
                     cell.lambdaVecY = force_magnitude * np.sin(angle)
 
-
     def _update_angles(self):
         if self.angles is None:
             return
 
-        self.angles += (
-            np.random.random(size=self.angles.shape) - 0.5
-        ) * self.params.d_theta
+        self.angles += (np.random.uniform(size=self.angles.shape)) * np.sqrt(
+            2 * self.params.d_theta
+        )
 
     def _update_coms(self):
         assert self.coms is not None and self.last_coms is not None

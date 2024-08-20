@@ -50,9 +50,9 @@ class ActiveSwimmer(SteppableBasePy, Element):
                 # force component along Y axis
                 cell.lambdaVecY = force * np.sin(angle)
 
-        self.angles += (
-            np.random.random(size=self.angles.shape) - 0.5
-        ) * self.params.d_theta
+        self.angles += (np.random.uniform(size=self.angles.shape)) * np.sqrt(
+            2 * self.params.d_theta
+        )
 
     def finish(self):
         pass
