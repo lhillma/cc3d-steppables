@@ -13,7 +13,7 @@ import numpy as np
 
 
 class CompartmentSwimmer(SteppableBasePy, Element):
-    def __init__(self, params: ActiveSwimmerParams, frequency=1):
+    def __init__(self, params: ActiveSwimmerParams, k: float = 0.1, frequency=1):
         super().__init__(frequency)
 
         self.params = params
@@ -23,6 +23,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
         self.max_compartment_size = 0
 
         self.box_size = None
+        self.k = k
 
     def start(self):
         n_cells = len(list(self.params.filter()))
@@ -70,7 +71,7 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                     cell_com = self._get_com(cell)
 
                     # spring force (Hooke's law)
-                    k = 0.0 * force_magnitude  #  * cell.targetVolume
+                    k = self.k * force_magnitude  #  * cell.targetVolume
                     force = k * self._unwrapped_distance(compartment_com, cell_com)
 
                     # force component along X axis
