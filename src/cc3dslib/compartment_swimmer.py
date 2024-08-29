@@ -75,9 +75,9 @@ class CompartmentSwimmer(SteppableBasePy, Element):
                     force = k * self._unwrapped_distance(compartment_com, cell_com)
 
                     # force component along X axis
-                    cell.lambdaVecX = force[0] + force_magnitude * np.cos(angle)
+                    cell.lambdaVecX = force[0]
                     # force component along Y axis
-                    cell.lambdaVecY = force[1] + force_magnitude * np.sin(angle)
+                    cell.lambdaVecY = force[1]
                 else:
                     # force component along X axis
                     cell.lambdaVecX = force_magnitude * np.cos(angle)
