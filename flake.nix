@@ -31,27 +31,54 @@
       format = "pyproject";
     };
 
-    packages.x86_64-linux.default = self.packages.x86_64-linux.cc3dslib;
-
-    devShells.x86_64-linux.cc3dslib = let
+    packages.x86_64-linux.docker = let
       pkgs = import nixpkgs { system = "x86_64-linux"; };
       cc3d = inputs.cc3d.packages.x86_64-linux.cc3d;
       cc3d-player5 = inputs.cc3d.packages.x86_64-linux.cc3d-player5;
       cc3d-player5-wrapper = inputs.cc3d.packages.x86_64-linux.cc3d-player5-wrapper;
       cc3dslib = self.packages.x86_64-linux.cc3dslib;
-    in pkgs.mkShell {
+    in pkgs.dockerTools.buildLayeredImage {
       name = "cc3dslib";
-      buildInputs = with pkgs; [
+      tag = "latest";
+      contents = with pkgs; [
         (python311.withPackages (ps: [
           cc3d
           cc3d-player5
           cc3dslib
         ]))
         cc3d-player5-wrapper
+        bash
+        coreutils
       ];
+
+      config = {
+        Cmd = [ "bash" ];
+      };
     };
 
-    devShells.x86_64-linux.default = self.devShells.x86_64-linux.cc3dslib;
+    packages.x86_64-linux.default = self.packages.x86_64-linux.cc3dslib;
+
+    devShells.x86_64-linux = {
+      cc3dslib = let
+        pkgs = import nixpkgs { system = "x86_64-linux"; };
+        cc3d = inputs.cc3d.packages.x86_64-linux.cc3d;
+        cc3d-player5 = inputs.cc3d.packages.x86_64-linux.cc3d-player5;
+        cc3d-player5-wrapper = inputs.cc3d.packages.x86_64-linux.cc3d-player5-wrapper;
+        cc3dslib = self.packages.x86_64-linux.cc3dslib;
+      in pkgs.mkShell {
+        name = "cc3dslib";
+        buildInputs = with pkgs; [
+          (python311.withPackages (ps: [
+            cc3d
+            cc3d-player5
+            cc3dslib
+          ]))
+          cc3d-player5-wrapper
+        ];
+      };
+
+      default = self.devShells.x86_64-linux.cc3dslib;
+    };
 
   };
 }
