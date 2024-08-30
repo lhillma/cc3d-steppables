@@ -1,4 +1,5 @@
 """Steppable for active swimmer cells in the Simulation."""
+
 from dataclasses import dataclass
 from cc3d.cpp.CompuCell import CellG
 from cc3dslib.filter import Filter
@@ -49,14 +50,14 @@ class ActiveSwimmer(SteppableBasePy, Element):
                 # force component along Y axis
                 cell.lambdaVecY = force * np.sin(angle)
 
-        self.angles += (
-            np.random.random(size=self.angles.shape) - 0.5
-        ) * self.params.d_theta
+        self.angles += (np.random.normal(size=self.angles.shape)) * np.sqrt(
+            2 * self.params.d_theta
+        )
 
     def finish(self):
         pass
 
     def build(self) -> list[ElementCC3D]:
         root_node = ElementCC3D("Plugin", {"Name": "ExternalPotential"})
-        root_node.ElementCC3D("Algorithm", {}, "CenterOfMassBased")
+        root_node.ElementCC3D("Algorithm", {}, "PixelBased")
         return [root_node]
