@@ -1,0 +1,62 @@
+{
+  "nodes": {
+    "cc3d": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1725013880,
+        "narHash": "sha256-SuvWFlHFEFOC2xEvwgRT6LMUXpiecN+I6G5Ces4Lb1Q=",
+        "ref": "refs/heads/main",
+        "rev": "1e73fdf91083ab224b18f9c24707a7fa9869b1be",
+        "revCount": 3,
+        "type": "git",
+        "url": "ssh://git@gitlab.tue.nl/20235660/cc3d-flake"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@gitlab.tue.nl/20235660/cc3d-flake"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1724819573,
+        "narHash": "sha256-GnR7/ibgIH1vhoy8cYdmXE6iyZqKqFxQSVkFgosBh6w=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "71e91c409d1e654808b2621f28a327acfdad8dc2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1724819573,
+        "narHash": "sha256-GnR7/ibgIH1vhoy8cYdmXE6iyZqKqFxQSVkFgosBh6w=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "71e91c409d1e654808b2621f28a327acfdad8dc2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "cc3d": "cc3d",
+        "nixpkgs": "nixpkgs_2"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
