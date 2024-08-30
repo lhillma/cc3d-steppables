@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1725025351,
-        "narHash": "sha256-/ysvxzTzivB9h2F1ipxjMWguSFQIfI9sCL0gyOmo1fc=",
+        "lastModified": 1725036455,
+        "narHash": "sha256-pR6q6NhM9P/e0WUDhtiWqMOO9WHkB4UOifxy3hszQdU=",
         "ref": "refs/heads/main",
-        "rev": "0dc1afc739d9eb1cfc8e1f32994134955dd3cebc",
-        "revCount": 4,
+        "rev": "ec9aeddcb8fb5f699f79933b9d7d1a921ac6ee71",
+        "revCount": 5,
         "type": "git",
         "url": "ssh://git@gitlab.tue.nl/20235660/cc3d-flake"
       },
