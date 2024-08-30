@@ -1,0 +1,44 @@
+.nix:
+  image: registry.gitlab.com/cynerd/gitlab-ci-nix
+  variables:
+    RUNNER_SCRIPT_TIMEOUT: 30m
+    RUNNER_AFTER_SCRIPT_TIMEOUT: 30m
+  cache:
+    key: "nix"
+    paths:
+      - ".nix-cache"
+  before_script:
+    - gitlab-ci-nix-cache-before
+  after_script:
+    - gitlab-ci-nix-cache-after
+
+
+build:
+  extends: .nix
+  stage: build
+  script:
+    - mkdir -p ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - eval "$(ssh-agent -s)"
+    - ssh-add - <<< "$SSH_PRIVATE_KEY"
+    - nix build .\#docker
+    - cp result image.tar.gz
+  artifacts:
+    when: always
+    paths:
+      - image.tar.gz
+
+deploy:
+  stage: deploy
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  dependencies:
+    - build
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker load -i image.tar.gz
+    - docker tag cc3dslib:latest $IMAGE_TAG
+    - docker push $IMAGE_TAG
