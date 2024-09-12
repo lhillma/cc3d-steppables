@@ -11,7 +11,7 @@
     packages.x86_64-linux.cc3dslib = let
       pkgs = import nixpkgs { system = "x86_64-linux"; };
       cc3d = inputs.cc3d.packages.x86_64-linux.cc3d;
-    in pkgs.python311Packages.buildPythonPackage {
+    in pkgs.python312Packages.buildPythonPackage {
       pname = "cc3dslib";
       version = "0.3.0";
       src = ./.;
@@ -20,11 +20,11 @@
         description = "Library of CC3D steppables in Python";
       };
 
-      build-system = with pkgs.python311Packages; [
+      build-system = with pkgs.python312Packages; [
         setuptools
       ];
 
-      dependencies = with pkgs.python311Packages; [
+      dependencies = with pkgs.python312Packages; [
         numpy
         h5py
         cc3d
@@ -43,7 +43,7 @@
       name = "cc3dslib";
       tag = "latest";
       contents = with pkgs; [
-        (python311.withPackages (ps: [
+        (python312.withPackages (ps: [
           cc3d
           cc3d-player5
           cc3dslib
@@ -70,7 +70,7 @@
       in pkgs.mkShell {
         name = "cc3dslib";
         buildInputs = with pkgs; [
-          (python311.withPackages (ps: [
+          (python312.withPackages (ps: [
             cc3d
             cc3d-player5
             cc3dslib
