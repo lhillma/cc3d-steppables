@@ -65,7 +65,7 @@
         pkgs = import nixpkgs { system = "x86_64-linux"; };
         cc3d = inputs.cc3d.packages.x86_64-linux.cc3d;
         cc3d-player5 = inputs.cc3d.packages.x86_64-linux.cc3d-player5;
-        cc3d-player5-wrapper = inputs.cc3d.packages.x86_64-linux.cc3d-player5-wrapper;
+        cc3d-player5-wrapper = inputs.cc3d.packages.x86_64-linux.cc3d-player5-wrapped;
         cc3dslib = self.packages.x86_64-linux.cc3dslib;
       in pkgs.mkShell {
         name = "cc3dslib";
