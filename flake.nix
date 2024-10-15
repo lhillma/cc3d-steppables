@@ -88,6 +88,7 @@
           python3Packages.python-lsp-black
           python3Packages.python-lsp-server
           python3Packages.rope
+          pre-commit
         ]);
       });
       default = self.devShells.x86_64-linux.cc3dslib;
